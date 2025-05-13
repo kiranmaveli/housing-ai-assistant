@@ -1,0 +1,6 @@
+streamlit
+prophet
+openai
+matplotlib
+pandas
+numpy
