@@ -1,9 +1,3 @@
-# 📦 Australian Housing Market AI Assistant
-# - Upload CSV data
-# - Filter by yield, price, vacancy
-# - Forecast price trends
-# - Chat with GPT to extract filters from natural language
-
 import pandas as pd
 import numpy as np
 from prophet import Prophet
@@ -11,14 +5,11 @@ import matplotlib.pyplot as plt
 import streamlit as st
 import openai
 
-# --- Streamlit Setup ---
 st.set_page_config(page_title="Aussie Housing AI", layout="centered")
 st.title("🏡 Australian Housing Market AI Assistant")
 
-# --- OpenAI API Key ---
 openai.api_key = st.sidebar.text_input("Enter OpenAI API Key", type="password")
 
-# --- CSV Upload ---
 st.sidebar.header("Step 1: Upload CSV")
 file = st.sidebar.file_uploader("Upload a housing data CSV", type="csv")
 
@@ -29,11 +20,9 @@ else:
     st.warning("⚠️ Upload a CSV with columns: suburb, date, median_price, rental_yield, vacancy_rate")
     data = pd.DataFrame(columns=["suburb", "date", "median_price", "rental_yield", "vacancy_rate"])
 
-# --- Natural Language Prompt ---
 st.subheader("💬 Ask a question")
 prompt = st.text_input("e.g. Show suburbs under 800k with yield over 4% and low vacancy")
 
-# --- Extract filter parameters from GPT ---
 def extract_filters_from_prompt(prompt):
     if not prompt.strip() or not openai.api_key:
         return 700000, 4.0, 1.0
@@ -52,11 +41,10 @@ def extract_filters_from_prompt(prompt):
         )
         filters = eval(response['choices'][0]['message']['content'])
         return filters.get("max_price", 700000), filters.get("min_yield", 4.0), filters.get("max_vacancy", 1.0)
-    except Exception as e:
+    except:
         st.error("⚠️ Could not extract filters. Using defaults.")
         return 700000, 4.0, 1.0
 
-# --- Apply filters ---
 max_price, min_yield, max_vacancy = extract_filters_from_prompt(prompt)
 
 def filter_suburbs(data, max_price, min_yield, max_vacancy):
@@ -78,7 +66,6 @@ if not filtered.empty:
 else:
     st.info("No suburbs found for the given criteria.")
 
-# --- Forecast Example for Swan View ---
 if 'Swan View' in data['suburb'].unique():
     st.subheader("📈 Forecast for Swan View")
     swan_data = data[data['suburb'] == 'Swan View'][['date', 'median_price']].copy()
